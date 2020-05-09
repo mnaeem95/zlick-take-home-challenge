@@ -5,7 +5,7 @@ import { ExchangeRateProxy } from './proxies/exchange-rate.proxy';
 import { TransactionProxy } from './proxies/transaction.proxy';
 import { promiseAll } from './utils/lib';
 
-const TRANSACTION_COUNT = parseInt(process.env.TRANSACTION_COUNT, 10) || 5;
+const TRANSACTION_COUNT = parseInt(process.env.TRANSACTION_COUNT, 10) || 100;
 const BASE_CURRENCY = process.env.BASE_CURRENCY || 'EUR';
 
 const exchangeRateProxy = new ExchangeRateProxy();
