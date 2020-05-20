@@ -16,3 +16,5 @@ export const promiseAll = async (promises) => {
 
   return { successfulPromises, failedPromises };
 };
+
+export const chunk = (arr, n) => (arr.length ? [arr.slice(0, n), ...chunk(arr.slice(n), n)] : []);

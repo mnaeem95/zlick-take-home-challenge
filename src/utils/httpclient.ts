@@ -29,7 +29,9 @@ export class HttpClient {
       retries: retryConfig.retries || HttpClient.DEFAULT_RETRIES,
       shouldResetTimeout: true,
       retryDelay: retryConfig.retryDelay || exponentialDelay,
-      retryCondition: retryConfig.retryCondition || isNetworkOrIdempotentRequestError,
+      retryCondition: (error) => {
+        return axiosRetry.isNetworkOrIdempotentRequestError(error) || error.code === 'ECONNABORTED';
+      },
     });
   }
 

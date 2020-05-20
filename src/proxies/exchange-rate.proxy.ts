@@ -3,7 +3,7 @@ import { HttpClient } from '../utils/httpclient';
 export class ExchangeRateProxy {
   private exchangeRateService;
 
-  constructor(timeoutMS = 15000, headers = { 'Content-Type': 'application/json' }) {
+  constructor(timeoutMS = 60000, headers = { 'Content-Type': 'application/json' }) {
     const serviceUrl = process.env.EXCHANGE_RATE_SERVICE;
     this.exchangeRateService = new HttpClient(serviceUrl, timeoutMS, headers);
   }

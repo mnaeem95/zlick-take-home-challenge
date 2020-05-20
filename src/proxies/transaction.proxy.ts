@@ -1,5 +1,5 @@
 import { HttpClient } from '../utils/httpclient';
-import { promiseAll } from '../utils/lib';
+import { promiseAll, chunk } from '../utils/lib';
 
 export class TransactionProxy {
   private transactionService;
@@ -9,26 +9,36 @@ export class TransactionProxy {
     this.transactionService = new HttpClient(serviceUrl, timeoutMS, headers);
   }
 
-  getTransactions = async (transactionCount): Promise<any> => {
-    const transactions = [];
+  getTransactions = async (transactionCount: number, batchSize: number): Promise<any> => {
+    let successfulTransactions = [];
+    let failedTransactions = [];
+    let transactions;
 
-    for (let i = 0; i < transactionCount; i++) {
-      transactions.push(this.getTransaction());
-    }
+    const arr = [...Array(transactionCount).keys()];
+    const transactionsChunks = chunk(arr, batchSize);
 
-    try {
-      const { successfulPromises, failedPromises } = await promiseAll(transactions);
-
-      if (failedPromises.length > 0) {
-        console.error(`Error while retrieving ${failedPromises.length} transactions from Transaction Service`);
-        console.log(failedPromises);
+    for (const chunk of transactionsChunks) {
+      transactions = [];
+      for (let i = 0; i < chunk.length; i++) {
+        transactions.push(this.getTransaction());
       }
 
-      return successfulPromises;
-    } catch (error) {
-      console.error(error.message);
-      throw error;
+      try {
+        const { successfulPromises, failedPromises } = await promiseAll(transactions);
+
+        if (failedPromises.length > 0) {
+          console.error(`Error while retrieving ${failedPromises.length} transactions from Transaction Service`);
+          console.log(failedPromises);
+          failedTransactions = [...failedTransactions, failedPromises];
+        }
+        successfulTransactions = [...successfulTransactions, ...successfulPromises];
+      } catch (error) {
+        console.error(error.message);
+        throw error;
+      }
     }
+
+    return successfulTransactions;
   };
 
   postTransactions = async (transactions): Promise<any> => {
